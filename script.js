@@ -1,34 +1,19 @@
 
+const board = (function(){
 
+    let cells, turn, turnSpan;
 
-
-
-const gameEngine = (function(){
-
-    let x = ''
-
-    function registerTurn(turn, cell) {
-        x = turn;
-        console.log(turn);
-        console.log(cell.id);
+     function init() {
+        cells = document.querySelectorAll(".cell");
+        cells.forEach((cell) => cell.addEventListener("click", () => cellClicked(cell)));
+        turnSpan = document.querySelector("#turnSpan");
+        turn = "X";
+        turnSpan.textContent = turn;
+        gameEngine.initialize(cells);
     }
 
-
-
-    return {registerTurn}
-
-})();
-
-
-const board = (function(){
-    let cells = document.querySelectorAll(".cell");
-    cells.forEach((cell) => cell.addEventListener("click", () => cellClicked(cell)));
-    let turnSpan = document.querySelector("#turnSpan");
-    let turn = "X";
-    turnSpan.textContent = turn;
-
     function cellClicked(cell) {
-        if (cellUnoccupied(cell)) {
+        if (!cell.textContent) {
             markCell(cell);
             changeTurn()
         } else {
@@ -39,24 +24,165 @@ const board = (function(){
     function markCell(cell) {
         cell.textContent = turn;
         gameEngine.registerTurn(turn, cell)
-        console.log(gameEngine.x)
     }
 
     function changeTurn() {
-        if (turn == "X") {
-            turn = "O"
-        } else {
-            turn = "X"
-        }
+        turn = (turn === "X") ? "O" : "X";
         turnSpan.textContent = turn;
     }
 
-    function cellUnoccupied(cell) {
-        if (cell.textContent) {
-            return false
-        } else {
-            return true
-        }
+    function resetBoard() {
+        // console.log("RESET BOARD")
+        cells.forEach((cell)=> {
+            cell.textContent = "";
+        })
+        turn = "X";
+        turnSpan.textContent = turn
+        gameEngine.initialize(cells);
     }
+
+    return { init, resetBoard }
+
 })();
 
+
+const gameEngine = (function(cells){
+
+    let winPresent = false;
+    let gameCells = [];
+    let xMarks = []
+    let oMarks = []
+    let winningCombos = [
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+        [0,4,8],
+        [2,4,6],
+    ]
+
+    function initialize(boardCells) {
+        boardCells.forEach((cell) => {
+            let newCell = {
+                cellMark: "",
+                id: cell.id
+            }
+            gameCells.push(newCell)
+        })
+    }
+
+    function registerTurn(turn, selectedCell) {
+        for (c of gameCells) {
+            if (c.id == selectedCell.id && c.cellMark == "") {
+                c.cellMark = turn;
+                if (turn == "X") {
+                    xMarks.push(Number(c.id))
+                    xMarks.sort((a, b) => (a - b));
+                } else {
+                    oMarks.push(Number(c.id))
+                    oMarks.sort((a, b) => (a - b));
+                }
+            } else {
+               
+            }
+        }
+        analyzeTurn(turn)
+        checkMaxTurns();
+    }
+
+    
+    function checkMaxTurns() {
+        console.log(`checkMaxTurns function`)
+        let spacesAvailable  = []
+        for (c of gameCells) {
+            spacesAvailable.push(c.cellMark)
+        }
+        if (!winPresent) {
+            if (!spacesAvailable.includes("") && spacesAvailable.length > 0) {
+                console.log('max turns if loop, win present status:')
+                console.log(winPresent)
+                tieGame()
+            }
+        }
+        
+        winPresent = false;
+    }
+
+    function analyzeTurn(turn) {
+
+        if (turn=="X") {
+            winningCombos.forEach((combo) => {
+                let comboCount = 0
+                for (n of combo) {
+                    if (xMarks.includes(n)) {
+                        comboCount++
+                    } else {
+                        continue
+                    }
+                    if (comboCount == 3) {
+                        console.log(`analyzed an X win`)
+                        gameOver("X");
+                    }
+                }
+            })
+        } else {
+            winningCombos.forEach((combo) => {
+                let comboCount = 0
+                for (n of combo) {
+                    if (oMarks.includes(n)) {
+                        comboCount++
+                    } else {
+                        continue
+                    }
+                    if (comboCount == 3) {
+                        gameOver("O");
+                    }
+                }
+            })
+        }
+        
+    }
+
+    function gameOver(winner) {
+        console.log(`game over function`)
+        winPresent = true;
+
+        setTimeout(function () {
+            if (winner == "X") {
+                alert(`Game Over.\n Winner Player ${winner}`)
+            } else {
+                alert(`Game Over.\n Winner Player ${winner}`)
+            } 
+            console.log(winPresent)
+            resetGame()
+        }, 500);
+        
+
+    }
+
+    function tieGame() {
+        setTimeout(function () {
+            alert(`Game Over - TIE GAME`)
+            console.log("TIE GAME function")
+            resetGame()
+        }, 500);
+    }
+
+    function resetGame() {
+        console.log("RESET GAME function")
+        console.log(winPresent)
+        gameCells = [];
+        xMarks = []
+        oMarks = []
+        spacesAvailable = []
+        board.resetBoard()
+    }
+
+    return { initialize, registerTurn }
+
+})();
+
+
+board.init();
