@@ -1,3 +1,25 @@
+
+:root {
+	font-size: 16px;
+	color: bisque;
+}
+
+html {
+	overflow: hidden;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	overflow: scroll;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	background-color: black;
+}
+
+
 .container {
     display: grid;
     justify-items: center;
@@ -6,7 +28,7 @@
 .cell {
     width: 10vw;
     height: 10vw;
-    border: 1px solid black;
+    border: 1px solid grey;
     display: grid;
     align-items: center;
     justify-content: center;
@@ -15,4 +37,15 @@
 
 .row {
     display: flex;
+}
+
+.scoreBoard {
+    margin: 5vh;
+    display: flex;
+    gap: 8vw;
+    font-size: 1.3rem;
+}
+
+.scoreBoard > div {
+    text-align: center;
 }

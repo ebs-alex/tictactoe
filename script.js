@@ -1,9 +1,13 @@
 
 const board = (function(){
 
-    let cells, turn, turnSpan;
+    let cells, turn, turnSpan, xWins, oWins;
 
      function init() {
+        xWins = document.querySelector("#xWins");
+        oWins = document.querySelector("#oWins");
+        xWins.textContent = "0"
+        oWins.textContent = "0"
         cells = document.querySelectorAll(".cell");
         cells.forEach((cell) => cell.addEventListener("click", () => cellClicked(cell)));
         turnSpan = document.querySelector("#turnSpan");
@@ -41,7 +45,19 @@ const board = (function(){
         gameEngine.initialize(cells);
     }
 
-    return { init, resetBoard }
+    function scoreWin(winner) {
+        if (winner == "X") {
+            let newScore = Number(xWins.textContent);
+            newScore++;
+            xWins.textContent = newScore
+        } else if (winner == "O"){
+            let newScore = Number(oWins.textContent);
+            newScore++;
+            oWins.textContent = newScore
+        }
+    }
+
+    return { init, resetBoard, scoreWin }
 
 })();
 
@@ -123,6 +139,7 @@ const gameEngine = (function(cells){
                     }
                     if (comboCount == 3) {
                         console.log(`analyzed an X win`)
+                        board.scoreWin("X")
                         gameOver("X");
                     }
                 }
@@ -137,6 +154,7 @@ const gameEngine = (function(cells){
                         continue
                     }
                     if (comboCount == 3) {
+                        board.scoreWin("O")
                         gameOver("O");
                     }
                 }
@@ -158,8 +176,6 @@ const gameEngine = (function(cells){
             console.log(winPresent)
             resetGame()
         }, 500);
-        
-
     }
 
     function tieGame() {
